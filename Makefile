@@ -70,8 +70,8 @@ test: manifests generate fmt vet envtest ## Run tests.
 
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
-        go clean -modcache
-        go mod tidy
+	go clean -modcache
+	go mod tidy
 	go build -o bin/manager cmd/main.go
 
 .PHONY: run
