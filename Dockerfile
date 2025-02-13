@@ -13,12 +13,15 @@ WORKDIR /workspace
 # and so that source changes don't invalidate our downloaded layer
 ENV GOPROXY=https://proxy.golang.org,direct
 ENV GOSUMDB=off
-COPY . .
 
 #RUN rm -f go.sum && go mod tidy && go mod download
-RUN go get -d ./... \
+
+COPY go.mod go.sum ./
+RUN rm -f go.sum \
     && go mod tidy \
+    && go mod verify \
     && go mod download
+COPY . .
 
 # Copy the go source
 #COPY cmd/main.go cmd/main.go
