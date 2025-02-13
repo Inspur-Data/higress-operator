@@ -11,7 +11,8 @@ WORKDIR /workspace
 
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
-ENV GOPROXY=https://proxy.golang.org,direct
+#ENV GOPROXY=https://proxy.golang.org,direct
+ENV GOPROXY=https://goproxy.cn,direct
 ENV GOSUMDB=off
 
 #RUN rm -f go.sum && go mod tidy && go mod download
