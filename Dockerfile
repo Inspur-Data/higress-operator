@@ -1,33 +1,21 @@
 # Build the manager binary
-FROM golang:1.19 as builder
+FROM registry.cn-hangzhou.aliyuncs.com/testwydimage/golang-linux-amd64:1.19 as builder
 ARG TARGETOS
 ARG TARGETARCH
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
-
-#COPY go.mod go.mod
-#COPY go.sum go.sum
-
+COPY go.mod go.mod
+COPY go.sum go.sum
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
-ENV GOPROXY=https://proxy.golang.org,direct
-ENV GOSUMDB=off
-
-#RUN rm -f go.sum && go mod tidy && go mod download
-
-COPY go.mod go.sum ./
-RUN rm -f go.sum \
-    && go mod tidy \
-    && go mod verify \
-    && go mod download
-COPY . .
+ENV GOPROXY=https://goproxy.cn
+RUN go mod download
 
 # Copy the go source
-#COPY cmd/main.go cmd/main.go
-#COPY api/ api/
-#COPY internal/controller/ internal/controller/
-
+COPY cmd/main.go cmd/main.go
+COPY api/ api/
+COPY internal/controller/ internal/controller/
 
 # Build
 # the GOARCH has not a default value to allow the binary be built according to the host where the command
@@ -38,7 +26,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM registry.cn-hangzhou.aliyuncs.com/testwydimage/gcr.io.distroless.static-linux-amd64:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY config/ config/
