@@ -316,6 +316,10 @@ func genVolumeMounts(instance *v1alpha1.HigressGateway) []apiv1.VolumeMount {
 			MountPath: "/var/run/secrets/istio",
 		},
 		{
+			Name:      "workload-spiffe-uds",
+			MountPath: "/var/run/secrets/workload-spiffe-uds",
+		},
+		{
 			Name:      "istio-data",
 			MountPath: "/var/lib/istio/data",
 		},
@@ -383,6 +387,12 @@ func genVolumes(instance *v1alpha1.HigressGateway) []apiv1.Volume {
 		},
 		{
 			Name: "istio-data",
+			VolumeSource: apiv1.VolumeSource{
+				EmptyDir: &apiv1.EmptyDirVolumeSource{},
+			},
+		},
+		{
+			Name: "workload-spiffe-uds",
 			VolumeSource: apiv1.VolumeSource{
 				EmptyDir: &apiv1.EmptyDirVolumeSource{},
 			},
