@@ -27,10 +27,12 @@ func defaultRules() []rbacv1.PolicyRule {
 	return rules
 }
 
-func initClusterRole(cr *rbacv1.ClusterRole, _ *operatorv1alpha1.HigressGateway) *rbacv1.ClusterRole {
+func initClusterRole(cr *rbacv1.ClusterRole, instance *operatorv1alpha1.HigressGateway) *rbacv1.ClusterRole {
 	*cr = rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRole,
+			Name:        instance.Namespace + "-" + instance.Name,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 		Rules: defaultRules(),
 	}
@@ -47,7 +49,9 @@ func muteClusterRole(cr *rbacv1.ClusterRole, instance *operatorv1alpha1.HigressG
 func initClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1alpha1.HigressGateway) *rbacv1.ClusterRoleBinding {
 	*crb = rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: getServiceAccount(instance),
+			Name:        instance.Namespace + "-" + instance.Name,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 	}
 
@@ -58,7 +62,7 @@ func initClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1
 func updateClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1alpha1.HigressGateway) {
 	crb.RoleRef = rbacv1.RoleRef{
 		Kind:     "ClusterRole",
-		Name:     clusterRole,
+		Name:     instance.Namespace + "-" + instance.Name,
 		APIGroup: "rbac.authorization.k8s.io",
 	}
 
@@ -87,12 +91,14 @@ func muteClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1
 func initRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressGateway) *rbacv1.RoleBinding {
 	*rb = rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      role,
-			Namespace: instance.Namespace,
+			Name:        instance.Name,
+			Namespace:   instance.Namespace,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 		RoleRef: rbacv1.RoleRef{
 			Kind:     "Role",
-			Name:     getServiceAccount(instance),
+			Name:     instance.Name,
 			APIGroup: "rbac.authorization.k8s.io",
 		},
 		Subjects: []rbacv1.Subject{
@@ -109,7 +115,7 @@ func initRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressG
 func updateRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressGateway) {
 	rb.RoleRef = rbacv1.RoleRef{
 		Kind:     "Role",
-		Name:     role,
+		Name:     instance.Name,
 		APIGroup: "rbac.authorization.k8s.io",
 	}
 
@@ -138,8 +144,10 @@ func muteRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressG
 func initRole(r *rbacv1.Role, instance *operatorv1alpha1.HigressGateway) *rbacv1.Role {
 	*r = rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      role,
-			Namespace: instance.Namespace,
+			Name:        instance.Name,
+			Namespace:   instance.Namespace,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 		Rules: defaultRules(),
 	}

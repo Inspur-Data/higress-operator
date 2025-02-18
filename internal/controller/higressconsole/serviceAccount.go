@@ -1,4 +1,4 @@
-package higresscontroller
+package higressconsole
 
 import (
 	apiv1 "k8s.io/api/core/v1"
@@ -11,19 +11,11 @@ func initServiceAccount(sa *apiv1.ServiceAccount, instance *operatorv1alpha1.Hig
 	*sa = apiv1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:   instance.Namespace,
-			Name:        getServiceAccount(instance),
+			Name:        instance.Spec.Console.Name,
 			Labels:      instance.Labels,
-			Annotations: instance.Annotations,
+			Annotations: instance.Spec.ServiceAccount.Annotations,
 		},
 	}
 
 	return sa
-}
-
-func getServiceAccount(instance *operatorv1alpha1.HigressController) string {
-	if instance.Spec.ServiceAccount.Name != "" {
-		return instance.Spec.ServiceAccount.Name
-	}
-
-	return instance.Name
 }

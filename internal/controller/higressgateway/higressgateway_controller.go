@@ -93,6 +93,9 @@ func (r *HigressGatewayReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 				return ctrl.Result{}, err
 			}
 		}
+		if err := r.deleteRBAC(ctx, instance, logger); err != nil {
+			return ctrl.Result{}, err
+		}
 
 		return ctrl.Result{}, nil
 	}
@@ -200,16 +203,37 @@ func (r *HigressGatewayReconciler) createRBAC(ctx context.Context, instance *ope
 	}
 
 	initRole(role, instance)
+	if err = ctrl.SetControllerReference(instance, role, r.Scheme); err != nil {
+		return err
+	}
 	if err = CreateOrUpdate(ctx, r.Client, "role", role, muteRole(role, instance), logger); err != nil {
 		return err
 	}
 
 	initRoleBinding(rb, instance)
+	if err = ctrl.SetControllerReference(instance, rb, r.Scheme); err != nil {
+		return err
+	}
 	if err = CreateOrUpdate(ctx, r.Client, "roleBinding", rb,
 		muteRoleBinding(rb, instance), logger); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (r *HigressGatewayReconciler) deleteRBAC(ctx context.Context, instance *operatorv1alpha1.HigressGateway, logger logr.Logger) error {
+	if !instance.Spec.RBAC.Enable || !instance.Spec.ServiceAccount.Enable {
+		return nil
+	}
+	var (
+		cr  = &rbacv1.ClusterRole{}
+		crb = &rbacv1.ClusterRoleBinding{}
+	)
+	cr = initClusterRole(cr, instance)
+	Delete(ctx, r.Client, "clusterrole", cr, logger)
+	initClusterRoleBinding(crb, instance)
+	Delete(ctx, r.Client, "clusterRoleBinding", crb, logger)
 	return nil
 }
 
@@ -238,7 +262,7 @@ func (r *HigressGatewayReconciler) finalizeHigressGateway(instance *operatorv1al
 	)
 
 	name := getServiceAccount(instance)
-	nn := types.NamespacedName{Name: name, Namespace: apiv1.NamespaceAll}
+	nn := types.NamespacedName{Name: instance.Namespace + "-" + name, Namespace: apiv1.NamespaceAll}
 	if err := r.Get(ctx, nn, crb); err != nil {
 		return err
 	}
@@ -260,6 +284,9 @@ func (r *HigressGatewayReconciler) finalizeHigressGateway(instance *operatorv1al
 func (r *HigressGatewayReconciler) createConfigMap(ctx context.Context, instance *operatorv1alpha1.HigressGateway, logger logr.Logger) error {
 	gatewayConfigMap, err := initGatewayConfigMap(&apiv1.ConfigMap{}, instance)
 	if err != nil {
+		return err
+	}
+	if err = ctrl.SetControllerReference(instance, gatewayConfigMap, r.Scheme); err != nil {
 		return err
 	}
 	if err = CreateOrUpdate(ctx, r.Client, "gatewayConfigMap", gatewayConfigMap,
@@ -292,7 +319,7 @@ func (r *HigressGatewayReconciler) setDefaultValues(instance *operatorv1alpha1.H
 	}
 	// serviceAccount
 	if instance.Spec.ServiceAccount == nil {
-		instance.Spec.ServiceAccount = &operatorv1alpha1.ServiceAccount{Enable: true, Name: "higress-gateway"}
+		instance.Spec.ServiceAccount = &operatorv1alpha1.ServiceAccount{Enable: true, Name: instance.Name}
 	}
 	// replicas
 	if instance.Spec.Replicas == nil {
@@ -302,14 +329,14 @@ func (r *HigressGatewayReconciler) setDefaultValues(instance *operatorv1alpha1.H
 	// selectorLabels
 	if len(instance.Spec.SelectorLabels) == 0 {
 		instance.Spec.SelectorLabels = map[string]string{
-			"app":     "higress-gateway",
-			"higress": "higress-system-higress-gateway",
+			"app":     instance.Name,
+			"higress": instance.Namespace + "-" + instance.Name,
 		}
 	}
 	// service
 	if instance.Spec.Service == nil {
 		instance.Spec.Service = &operatorv1alpha1.Service{
-			Type: "LoadBalancer",
+			Type: "ClusterIP",
 			Ports: []apiv1.ServicePort{
 				{
 					Name:       "http2",
@@ -322,6 +349,12 @@ func (r *HigressGatewayReconciler) setDefaultValues(instance *operatorv1alpha1.H
 					Port:       443,
 					Protocol:   "TCP",
 					TargetPort: intstr.FromInt(443),
+				},
+				{
+					Name:       "prometheus",
+					Port:       15090,
+					Protocol:   "TCP",
+					TargetPort: intstr.FromInt(15090),
 				},
 			},
 		}

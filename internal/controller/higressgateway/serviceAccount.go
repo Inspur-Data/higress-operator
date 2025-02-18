@@ -13,7 +13,7 @@ func initServiceAccount(sa *apiv1.ServiceAccount, instance *v1alpha1.HigressGate
 			Namespace:   instance.Namespace,
 			Name:        getServiceAccount(instance),
 			Labels:      instance.Labels,
-			Annotations: instance.Spec.ServiceAccount.Annotations,
+			Annotations: instance.Annotations,
 		},
 	}
 

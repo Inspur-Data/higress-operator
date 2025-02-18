@@ -25,6 +25,11 @@ func defaultRules() []rbacv1.PolicyRule {
 		},
 		{
 			Verbs:     []string{"*"},
+			APIGroups: []string{"*"},
+			Resources: []string{"*"},
+		},
+		{
+			Verbs:     []string{"*"},
 			APIGroups: []string{"networking.k8s.io", "extensions"},
 			Resources: []string{"ingresses/status"},
 		},
@@ -44,7 +49,7 @@ func defaultRules() []rbacv1.PolicyRule {
 		{
 			APIGroups: []string{"networking.x-k8s.io", "gateway.networking.k8s.io"},
 			Resources: []string{"*"},
-			Verbs:     []string{"get", "watch", "list", "update"},
+			Verbs:     []string{"*"},
 		},
 		//  discovery and routing
 		{
@@ -146,7 +151,9 @@ func initClusterRole(cr *rbacv1.ClusterRole, instance *operatorv1alpha1.HigressC
 
 	*cr = rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: clusterRole,
+			Name:        instance.Namespace + "-" + instance.Name,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 		Rules: defaultRules(),
 	}
@@ -167,7 +174,9 @@ func initClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1
 
 	*crb = rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: getServiceAccount(instance),
+			Name:        instance.Namespace + "-" + getServiceAccount(instance),
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 	}
 
@@ -178,7 +187,7 @@ func initClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1
 func updateClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1alpha1.HigressController) {
 	crb.RoleRef = rbacv1.RoleRef{
 		Kind:     "ClusterRole",
-		Name:     clusterRole,
+		Name:     instance.Namespace + "-" + instance.Name,
 		APIGroup: "rbac.authorization.k8s.io",
 	}
 
@@ -207,8 +216,10 @@ func muteClusterRoleBinding(crb *rbacv1.ClusterRoleBinding, instance *operatorv1
 func initRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressController) *rbacv1.RoleBinding {
 	*rb = rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      getServiceAccount(instance),
-			Namespace: instance.Namespace,
+			Name:        getServiceAccount(instance),
+			Namespace:   instance.Namespace,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 	}
 
@@ -219,7 +230,7 @@ func initRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressC
 func updateRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressController) {
 	rb.RoleRef = rbacv1.RoleRef{
 		Kind:     "Role",
-		Name:     role,
+		Name:     instance.Name,
 		APIGroup: "rbac.authorization.k8s.io",
 	}
 
@@ -248,8 +259,10 @@ func muteRoleBinding(rb *rbacv1.RoleBinding, instance *operatorv1alpha1.HigressC
 func initRole(r *rbacv1.Role, instance *operatorv1alpha1.HigressController) *rbacv1.Role {
 	*r = rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      role,
-			Namespace: instance.Namespace,
+			Name:        getServiceAccount(instance),
+			Namespace:   instance.Namespace,
+			Labels:      instance.Labels,
+			Annotations: instance.Annotations,
 		},
 		Rules: defaultRules(),
 	}
