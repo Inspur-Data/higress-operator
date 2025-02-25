@@ -4,6 +4,8 @@ ARG TARGETOS
 ARG TARGETARCH
 
 WORKDIR /workspace
+COPY config/ config/
+RUN chmod -R 755 /workspace/config && chown -R 65532:65532 /workspace/config
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
@@ -29,7 +31,8 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 FROM registry.cn-hangzhou.aliyuncs.com/testwydimage/gcr.io.distroless.static-linux-amd64:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
-COPY config/ config/
+COPY --from=builder /workspace/config/ config/
+#COPY config/ config/
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]
