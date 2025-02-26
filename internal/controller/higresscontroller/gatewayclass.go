@@ -41,7 +41,8 @@ func initGatewayclass(gatewayclass *gateway.GatewayClass, instance *operatorv1al
 
 func updateGatewayclassSpec(gatewayclass *gateway.GatewayClass, instance *operatorv1alpha1.HigressController) (*gateway.GatewayClass, error) {
 	gatewayclass.Spec = gateway.GatewayClassSpec{
-		ControllerName: gateway.GatewayController("higress.io/" + instance.Spec.IngressClass),
+		//ControllerName: gateway.GatewayController("higress.io/" + instance.Spec.IngressClass),
+		ControllerName: gateway.GatewayController("higress.io/gateway-controller"),
 	}
 	return gatewayclass, nil
 }
