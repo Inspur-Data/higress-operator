@@ -25,7 +25,7 @@ func initIngressclass(ingressclass *networkingv1.IngressClass, instance *operato
 
 func updateIngressclassSpec(ingressclass *networkingv1.IngressClass, instance *operatorv1alpha1.HigressController) (*networkingv1.IngressClass, error) {
 	ingressclass.Spec = networkingv1.IngressClassSpec{
-		Controller: "icks.io/" + instance.Spec.IngressClass,
+		Controller: "higress.io/" + instance.Spec.IngressClass,
 	}
 	return ingressclass, nil
 }

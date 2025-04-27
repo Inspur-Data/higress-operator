@@ -19,7 +19,7 @@ func defaultRules() []rbacv1.PolicyRule {
 	rules := []rbacv1.PolicyRule{
 		// ingress controller
 		{
-			Verbs:     []string{"get", "list", "watch"},
+			Verbs:     []string{"*"},
 			APIGroups: []string{"networking.k8s.io", "extensions"},
 			Resources: []string{"ingresses", "ingressclasses"},
 		},

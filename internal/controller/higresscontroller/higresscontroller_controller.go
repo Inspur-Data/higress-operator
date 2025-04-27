@@ -271,18 +271,12 @@ func (r *HigressControllerReconciler) deleteRBAC(ctx context.Context, instance *
 }
 
 func (r *HigressControllerReconciler) createIngressClass(ctx context.Context, instance *operatorv1alpha1.HigressController, logger logr.Logger) error {
-	// ic := &networkingv1.IngressClass{}
-	// if err := r.Get(ctx, types.NamespacedName{Name: instance.Spec.IngressClass, Namespace: instance.Namespace}, ic); err != nil {
-	// 	if errors.IsNotFound(err) {
-	// 		ingressclass, err := initIngressclass(&networkingv1.IngressClass{}, instance)
-	// 		if err != nil {
-	// 			return err
-	// 		}
+	ingressclass, err := initIngressclass(&networkingv1.IngressClass{}, instance)
+	if err != nil {
+		return err
+	}
+	CreateOrUpdate(ctx, r.Client, "IngressClass", ingressclass, muteIngressclass(ingressclass, instance), logger)
 
-	// 		return CreateOrUpdate(ctx, r.Client, "IngressClass", ingressclass, muteIngressclass(ingressclass, instance), logger)
-	// 	}
-	// }
-	// return nil
 	gatewayclass, err := initGatewayclass(&gateway.GatewayClass{}, instance)
 	if err != nil {
 		return err
@@ -291,11 +285,11 @@ func (r *HigressControllerReconciler) createIngressClass(ctx context.Context, in
 }
 
 func (r *HigressControllerReconciler) deleteIngressClass(ctx context.Context, instance *operatorv1alpha1.HigressController, logger logr.Logger) error {
-	// ingressclass, err := initIngressclass(&networkingv1.IngressClass{}, instance)
-	// if err == nil {
-	// 	Delete(ctx, r.Client, "IngressClass", ingressclass, logger)
-	// }
-	// return nil
+	ingressclass, err := initIngressclass(&networkingv1.IngressClass{}, instance)
+	if err == nil {
+		Delete(ctx, r.Client, "IngressClass", ingressclass, logger)
+	}
+
 	gatewayclass, err := initGatewayclass(&gateway.GatewayClass{}, instance)
 	if err != nil {
 		return err
