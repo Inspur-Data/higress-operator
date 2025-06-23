@@ -69,6 +69,8 @@ func updateDeploymentSpec(deploy *appsv1.Deployment, instance *operatorv1alpha1.
 			container.VolumeMounts = genControllerVolumeMounts(instance)
 			container.SecurityContext = genControllerSecurityContext(instance)
 			containers = append(containers, *container)
+			container.LivenessProbe = genControllerProbe(instance)
+			container.ReadinessProbe = genControllerProbe(instance)
 		} else if c.Name == genPilotName(instance) {
 			pilotexist = true
 			container := c.DeepCopy()
@@ -95,6 +97,8 @@ func updateDeploymentSpec(deploy *appsv1.Deployment, instance *operatorv1alpha1.
 			SecurityContext: genControllerSecurityContext(instance),
 			Env:             genControllerEnv(instance, []apiv1.EnvVar{}),
 			VolumeMounts:    genControllerVolumeMounts(instance),
+			LivenessProbe:   genControllerProbe(instance),
+			ReadinessProbe:  genControllerProbe(instance),
 		})
 	}
 	if !pilotexist {
@@ -149,6 +153,23 @@ func genPilotProbe(instance *operatorv1alpha1.HigressController) *apiv1.Probe {
 				Port: intstr.FromInt(8080),
 			},
 		},
+	}
+}
+
+func genControllerProbe(instance *operatorv1alpha1.HigressController) *apiv1.Probe {
+	return &apiv1.Probe{
+		FailureThreshold: 3,
+		ProbeHandler: apiv1.ProbeHandler{
+			HTTPGet: &apiv1.HTTPGetAction{
+				Path:   "/endpointz",
+				Port:   intstr.FromInt(8888),
+				Scheme: "HTTP",
+			},
+		},
+		InitialDelaySeconds: 60,
+		PeriodSeconds:       10,
+		SuccessThreshold:    1,
+		TimeoutSeconds:      5,
 	}
 }
 
