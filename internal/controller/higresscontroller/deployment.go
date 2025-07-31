@@ -368,16 +368,6 @@ func genPilotVolumeMounts(instance *operatorv1alpha1.HigressController) []apiv1.
 			Name:      "local-certs",
 			MountPath: "/var/run/secrets/istio-dns",
 		},
-		{
-			Name:      "cacerts",
-			MountPath: "/etc/cacerts",
-			ReadOnly:  true,
-		},
-		{
-			Name:      "istio-kubeconfig",
-			MountPath: "/var/run/secrets/remote",
-			ReadOnly:  true,
-		},
 	}
 	pilot := instance.Spec.Pilot
 	if instance.Spec.JwtPolicy == "third-party-jwt" {
@@ -517,26 +507,6 @@ func genVolumes(instance *operatorv1alpha1.HigressController) []apiv1.Volume {
 			VolumeSource: apiv1.VolumeSource{
 				EmptyDir: &apiv1.EmptyDirVolumeSource{
 					Medium: apiv1.StorageMediumMemory,
-				},
-			},
-		},
-		{
-			Name: "cacerts",
-			VolumeSource: apiv1.VolumeSource{
-				Secret: &apiv1.SecretVolumeSource{
-					SecretName:  "cacerts",
-					Optional:    &optional,
-					DefaultMode: &defaultMode,
-				},
-			},
-		},
-		{
-			Name: "istio-kubeconfig",
-			VolumeSource: apiv1.VolumeSource{
-				Secret: &apiv1.SecretVolumeSource{
-					SecretName:  "istio-kubeconfig",
-					Optional:    &optional,
-					DefaultMode: &defaultMode,
 				},
 			},
 		},
