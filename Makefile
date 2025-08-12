@@ -1,5 +1,3 @@
-
-# Image URL to use all building/pushing image targets
 HUB ?= docker.io/higress-operator
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.26.1
@@ -70,8 +68,6 @@ test: manifests generate fmt vet envtest ## Run tests.
 
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
-	rm go.sum
-	go mod tidy
 	go build -o bin/manager cmd/main.go
 
 .PHONY: run
@@ -83,7 +79,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	docker build  --network=host  -t ${IMG} .
+	docker build -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
