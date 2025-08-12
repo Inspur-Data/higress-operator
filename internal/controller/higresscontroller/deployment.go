@@ -506,7 +506,8 @@ func genVolumes(instance *operatorv1alpha1.HigressController) []apiv1.Volume {
 			Name: "local-certs",
 			VolumeSource: apiv1.VolumeSource{
 				EmptyDir: &apiv1.EmptyDirVolumeSource{
-					Medium: apiv1.StorageMediumMemory,
+					Medium:    apiv1.StorageMediumMemory,
+					SizeLimit: "500Mi",
 				},
 			},
 		},
