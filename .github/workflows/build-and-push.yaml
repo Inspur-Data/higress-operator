@@ -2,9 +2,9 @@ name: "Build and Push"
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop-20250812 ]
   pull_request:
-    branches: ["*"]
+    branches: [develop-20250812]
   workflow_dispatch: ~
 
 jobs:
