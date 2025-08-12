@@ -9,6 +9,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
+	rr "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -493,8 +494,7 @@ func genControllerVolumeMounts(instance *operatorv1alpha1.HigressController) []a
 }
 
 func genVolumes(instance *operatorv1alpha1.HigressController) []apiv1.Volume {
-	optional := true
-	defaultMode := int32(420)
+	memory := rr.MustParse("500Mi")
 	volumes := []apiv1.Volume{
 		{
 			Name: "log",
@@ -507,7 +507,7 @@ func genVolumes(instance *operatorv1alpha1.HigressController) []apiv1.Volume {
 			VolumeSource: apiv1.VolumeSource{
 				EmptyDir: &apiv1.EmptyDirVolumeSource{
 					Medium:    apiv1.StorageMediumMemory,
-					SizeLimit: "500Mi",
+					SizeLimit: &memory,
 				},
 			},
 		},
