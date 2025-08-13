@@ -1,6 +1,6 @@
 # Build the manager binary
 # FROM registry.cn-hangzhou.aliyuncs.com/testwydimage/golang-linux-amd64:1.19 as builder
-FROM golang:1.19
+FROM golang:1.19 as builder
 ARG TARGETOS
 ARG TARGETARCH
 
