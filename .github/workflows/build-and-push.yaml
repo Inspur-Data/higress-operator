@@ -53,4 +53,4 @@ jobs:
 
       - name: Build and push multi-arch image
         run: |
-          docker buildx build --no-cache  --platform linux/arm64  -f Dockerfile -t  inspurwyd/higress-operator:arm64  --push .
+          docker buildx build --no-cache  --platform linux/amd64,linux/arm64  -f Dockerfile -t  inspurwyd/higress-operator:20250812  --push .
