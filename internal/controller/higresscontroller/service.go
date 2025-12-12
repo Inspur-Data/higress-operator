@@ -49,19 +49,9 @@ func updateServiceSpec(svc *apiv1.Service, instance *operatorv1alpha1.HigressCon
 				Port:     8888,
 			},
 			{
-				Name:     "https-dns",
-				Protocol: apiv1.ProtocolTCP,
-				Port:     15012,
-			},
-			{
 				Name:     "https-webhook",
 				Protocol: apiv1.ProtocolTCP,
 				Port:     443,
-			},
-			{
-				Name:     "https-monitoring",
-				Protocol: apiv1.ProtocolTCP,
-				Port:     15014,
 			},
 		}
 		set := make(map[string]struct{})
