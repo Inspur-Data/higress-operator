@@ -133,7 +133,10 @@ func (r *HigressControllerReconciler) Reconcile(ctx context.Context, request ctr
 		logger.Error(err, "Failed to create service")
 		return ctrl.Result{}, err
 	}
-
+	if err = r.createServiceInternal(ctx, instance, logger); err != nil {
+		logger.Error(err, "Failed to create internal service")
+		return ctrl.Result{}, err
+	}
 	if !instance.Status.Deployed {
 		instance.Status.Deployed = true
 		if err = r.Status().Update(ctx, instance); err != nil {
@@ -322,6 +325,15 @@ func (r *HigressControllerReconciler) createDeployment(ctx context.Context, inst
 
 func (r *HigressControllerReconciler) createService(ctx context.Context, instance *operatorv1alpha1.HigressController, logger logr.Logger) error {
 	svc := initService(&apiv1.Service{}, instance)
+	if err := ctrl.SetControllerReference(instance, svc, r.Scheme); err != nil {
+		return err
+	}
+
+	return CreateOrUpdate(ctx, r.Client, "Service", svc, muteService(svc, instance), logger)
+}
+
+func (r *HigressControllerReconciler) createServiceInternal(ctx context.Context, instance *operatorv1alpha1.HigressController, logger logr.Logger) error {
+	svc := initServiceInternal(&apiv1.Service{}, instance)
 	if err := ctrl.SetControllerReference(instance, svc, r.Scheme); err != nil {
 		return err
 	}
