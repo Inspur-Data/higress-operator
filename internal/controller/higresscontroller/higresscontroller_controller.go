@@ -338,7 +338,7 @@ func (r *HigressControllerReconciler) createServiceInternal(ctx context.Context,
 		return err
 	}
 
-	return CreateOrUpdate(ctx, r.Client, "Service", svc, muteService(svc, instance), logger)
+	return CreateOrUpdate(ctx, r.Client, "Service", svc, muteServiceInternal(svc, instance), logger)
 }
 
 func (r *HigressControllerReconciler) finalizeHigressController(instance *operatorv1alpha1.HigressController, logger logr.Logger) error {

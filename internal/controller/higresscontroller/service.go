@@ -136,3 +136,10 @@ func muteService(svc *apiv1.Service, instance *operatorv1alpha1.HigressControlle
 		return nil
 	}
 }
+
+func muteServiceInternal(svc *apiv1.Service, instance *operatorv1alpha1.HigressController) controllerutil.MutateFn {
+	return func() error {
+		updateServiceSpecInternal(svc, instance)
+		return nil
+	}
+}
