@@ -49,46 +49,6 @@ func updateServiceSpec(svc *apiv1.Service, instance *operatorv1alpha1.HigressCon
 		}
 		svc.Spec.Ports = s.Ports
 	}
-	svc.Spec.Type = apiv1.ServiceTypeNodePort
-	if !instance.Spec.EnableHigressIstio {
-		ports := []apiv1.ServicePort{
-			{
-				Name:     "grpc-xds",
-				Protocol: apiv1.ProtocolTCP,
-				Port:     15010,
-			},
-			{
-				Name:     "http-service",
-				Protocol: apiv1.ProtocolTCP,
-				Port:     8888,
-			},
-			{
-				Name:     "https-webhook",
-				Protocol: apiv1.ProtocolTCP,
-				Port:     443,
-			},
-		}
-		set := make(map[string]struct{})
-		for _, port := range svc.Spec.Ports {
-			set[port.Name] = struct{}{}
-		}
-		for _, port := range ports {
-			if _, ok := set[port.Name]; !ok {
-				svc.Spec.Ports = append(svc.Spec.Ports, port)
-			}
-		}
-	}
-}
-
-func updateServiceSpecInternal(svc *apiv1.Service, instance *operatorv1alpha1.HigressController) {
-	svc.Spec.Selector = instance.Spec.SelectorLabels
-
-	if s := instance.Spec.Service; s != nil {
-		if s.Type != "" {
-			svc.Spec.Type = apiv1.ServiceType(s.Type)
-		}
-		svc.Spec.Ports = s.Ports
-	}
 	svc.Spec.Type = apiv1.ServiceTypeClusterIP
 	if !instance.Spec.EnableHigressIstio {
 		ports := []apiv1.ServicePort{
@@ -116,6 +76,46 @@ func updateServiceSpecInternal(svc *apiv1.Service, instance *operatorv1alpha1.Hi
 				Name:     "https-monitoring",
 				Protocol: apiv1.ProtocolTCP,
 				Port:     15014,
+			},
+		}
+		set := make(map[string]struct{})
+		for _, port := range svc.Spec.Ports {
+			set[port.Name] = struct{}{}
+		}
+		for _, port := range ports {
+			if _, ok := set[port.Name]; !ok {
+				svc.Spec.Ports = append(svc.Spec.Ports, port)
+			}
+		}
+	}
+}
+
+func updateServiceSpecInternal(svc *apiv1.Service, instance *operatorv1alpha1.HigressController) {
+	svc.Spec.Selector = instance.Spec.SelectorLabels
+
+	if s := instance.Spec.Service; s != nil {
+		if s.Type != "" {
+			svc.Spec.Type = apiv1.ServiceType(s.Type)
+		}
+		svc.Spec.Ports = s.Ports
+	}
+	svc.Spec.Type = apiv1.ServiceTypeNodePort
+	if !instance.Spec.EnableHigressIstio {
+		ports := []apiv1.ServicePort{
+			{
+				Name:     "grpc-xds",
+				Protocol: apiv1.ProtocolTCP,
+				Port:     15010,
+			},
+			{
+				Name:     "http-service",
+				Protocol: apiv1.ProtocolTCP,
+				Port:     8888,
+			},
+			{
+				Name:     "https-webhook",
+				Protocol: apiv1.ProtocolTCP,
+				Port:     443,
 			},
 		}
 		set := make(map[string]struct{})
