@@ -342,7 +342,7 @@ func genPilotArgs(instance *operatorv1alpha1.HigressController) []string {
 	args = append(args, fmt.Sprintf("--monitoringAddr=:15014"))
 	args = append(args, fmt.Sprintf("--domain=%v", pilot.ClusterDomain))
 	args = append(args, fmt.Sprintf("--keepaliveMaxServerConnectionAge=%v", pilot.KeepaliveMaxServerConnectionAge))
-
+	args = append(args, fmt.Sprintf("--tls-cipher-suites=TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256"))
 	if pilot.LogLevel != "" {
 		args = append(args, fmt.Sprintf("--log_output_level=%v", pilot.LogLevel))
 	}
