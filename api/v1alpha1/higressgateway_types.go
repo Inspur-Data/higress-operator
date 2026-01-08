@@ -94,6 +94,14 @@ type MeshConfig struct {
 	DefaultConfig            ProxyConfig    `json:"defaultConfig" yaml:"defaultConfig"`
 	// +kubebuilder:validation:Optional
 	RootNamespace string `json:"rootNamespace" yaml:"rootNamespace"`
+	MeshIngressGlobalConfig MeshIngressGlobalConfigItem `json:"meshIngressGlobalConfig" yaml:"meshIngressGlobalConfig"`
+
+}
+
+type MeshIngressGlobalConfigItem struct {
+	TlsMinProtocolVersion string   `json:"tlsMinProtocolVersion" yaml:"tlsMinProtocolVersion"`
+	TlsMaxProtocolVersion string   `json:"tlsMaxProtocolVersion" yaml:"tlsMaxProtocolVersion"`
+	TlsCipherSuites       []string `json:"tlsCipherSuites" yaml:"tlsCipherSuites"`
 }
 
 type HigressConfig struct {
